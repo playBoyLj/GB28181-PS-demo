@@ -183,9 +183,9 @@ int gb28181_streampackageForH264(char *pData, int nFrameLen, Data_Info_s* pPacke
   gb28181_make_ps_header(szTempPacketHead + nSizePos, pPacker->s64CurPts);
   nSizePos += PS_HDR_LEN; 
   //2 system header 
-    if( pPacker->IFrame == 1 )
+  if( pPacker->IFrame == 1 )
   {
-        // 如果是I帧的话，则添加系统头
+    // 如果是I帧的话，则添加系统头
     gb28181_make_sys_header(szTempPacketHead + nSizePos);
     nSizePos += SYS_HDR_LEN;
 
@@ -193,11 +193,13 @@ int gb28181_streampackageForH264(char *pData, int nFrameLen, Data_Info_s* pPacke
     nSizePos += PSM_HDR_LEN;
  
   }
+
   if (pPacker->IFrame == 1)
   {
     /* code */
     pBuff += PES_HDR_LEN + PS_HDR_LEN + SYS_HDR_LEN + PSM_HDR_LEN ;
-  }else
+  }
+  else
   {
     /* code */
     pBuff += PES_HDR_LEN + PS_HDR_LEN ;
@@ -205,7 +207,7 @@ int gb28181_streampackageForH264(char *pData, int nFrameLen, Data_Info_s* pPacke
   }
   memcpy(pBuff, pData, nFrameLen);
   pBuff = pBuff - PES_HDR_LEN ;
-      printf("%d\n",pPacker->IFrame);
+  printf("%d\n",pPacker->IFrame);
   while(nFrameLen > 0)
   {
         //每次帧的长度不要超过short类型，过了就得分片进循环行发送
@@ -234,7 +236,8 @@ int gb28181_streampackageForH264(char *pData, int nFrameLen, Data_Info_s* pPacke
     {
       fwrite( (char*)pBuff,sizeof(char),nSize + PES_HDR_LEN + PS_HDR_LEN + SYS_HDR_LEN + PSM_HDR_LEN,fp);
       pBuff  += nSize + PS_HDR_LEN + SYS_HDR_LEN + PSM_HDR_LEN;
-    }else
+    }
+    else
     {
       fwrite( (char*)pBuff,sizeof(char),nSize + PES_HDR_LEN + PS_HDR_LEN,fp);
       //这里也只移动nSize,因为在while向后移动的pes头长度，正好重新填充pes头数据
@@ -247,6 +250,7 @@ int gb28181_streampackageForH264(char *pData, int nFrameLen, Data_Info_s* pPacke
   free(pBuffmark);
   return 0;
 }
+
 /***
  *@remark:   ps头的封装,里面的具体数据的填写已经占位，可以参考标准
  *@param :   pData  [in] 填充ps头数据的地址
@@ -283,6 +287,7 @@ int gb28181_make_ps_header(char *pData, unsigned long long s64Scr)
     bits_write(&bitsBuffer, 3,  0);           /*stuffing length*/
     return 0;
 }
+
 /***
  *@remark:   sys头的封装,里面的具体数据的填写已经占位，可以参考标准
  *@param :   pData  [in] 填充ps头数据的地址
@@ -299,29 +304,29 @@ int gb28181_make_sys_header(char *pData)
   memset(bitsBuffer.p_data, 0, SYS_HDR_LEN);
   /*system header*/
 	bits_write( &bitsBuffer, 32, 0x000001BB); /*start code*/
-    bits_write( &bitsBuffer, 16, SYS_HDR_LEN-6);/*header_length 表示次字节后面的长度，后面的相关头也是次意思*/
-    bits_write( &bitsBuffer, 1,  1);            /*marker_bit*/
-    bits_write( &bitsBuffer, 22, 50000);    /*rate_bound*/
-    bits_write( &bitsBuffer, 1,  1);            /*marker_bit*/
-    bits_write( &bitsBuffer, 6,  1);            /*audio_bound*/
-    bits_write( &bitsBuffer, 1,  0);            /*fixed_flag */
-    bits_write( &bitsBuffer, 1,  1);          /*CSPS_flag */
-    bits_write( &bitsBuffer, 1,  1);          /*system_audio_lock_flag*/
-    bits_write( &bitsBuffer, 1,  1);          /*system_video_lock_flag*/
-    bits_write( &bitsBuffer, 1,  1);          /*marker_bit*/
-    bits_write( &bitsBuffer, 5,  1);          /*video_bound*/
-    bits_write( &bitsBuffer, 1,  0);          /*dif from mpeg1*/
-    bits_write( &bitsBuffer, 7,  0x7F);       /*reserver*/
+  bits_write( &bitsBuffer, 16, SYS_HDR_LEN-6);/*header_length 表示次字节后面的长度，后面的相关头也是次意思*/
+  bits_write( &bitsBuffer, 1,  1);            /*marker_bit*/
+  bits_write( &bitsBuffer, 22, 50000);    /*rate_bound*/
+  bits_write( &bitsBuffer, 1,  1);            /*marker_bit*/
+  bits_write( &bitsBuffer, 6,  1);            /*audio_bound*/
+  bits_write( &bitsBuffer, 1,  0);            /*fixed_flag */
+  bits_write( &bitsBuffer, 1,  1);          /*CSPS_flag */
+  bits_write( &bitsBuffer, 1,  1);          /*system_audio_lock_flag*/
+  bits_write( &bitsBuffer, 1,  1);          /*system_video_lock_flag*/
+  bits_write( &bitsBuffer, 1,  1);          /*marker_bit*/
+  bits_write( &bitsBuffer, 5,  1);          /*video_bound*/
+  bits_write( &bitsBuffer, 1,  0);          /*dif from mpeg1*/
+  bits_write( &bitsBuffer, 7,  0x7F);       /*reserver*/
   /*audio stream bound*/
-    bits_write( &bitsBuffer, 8,  0xC0);         /*stream_id*/
-    bits_write( &bitsBuffer, 2,  3);          /*marker_bit */
-    bits_write( &bitsBuffer, 1,  0);            /*PSTD_buffer_bound_scale*/
-    bits_write( &bitsBuffer, 13, 512);          /*PSTD_buffer_size_bound*/
+  bits_write( &bitsBuffer, 8,  0xC0);         /*stream_id*/
+  bits_write( &bitsBuffer, 2,  3);          /*marker_bit */
+  bits_write( &bitsBuffer, 1,  0);            /*PSTD_buffer_bound_scale*/
+  bits_write( &bitsBuffer, 13, 512);          /*PSTD_buffer_size_bound*/
   /*video stream bound*/
-    bits_write( &bitsBuffer, 8,  0xE0);         /*stream_id*/
-    bits_write( &bitsBuffer, 2,  3);          /*marker_bit */
-    bits_write( &bitsBuffer, 1,  1);          /*PSTD_buffer_bound_scale*/
-    bits_write( &bitsBuffer, 13, 2048);       /*PSTD_buffer_size_bound*/
+  bits_write( &bitsBuffer, 8,  0xE0);         /*stream_id*/
+  bits_write( &bitsBuffer, 2,  3);          /*marker_bit */
+  bits_write( &bitsBuffer, 1,  1);          /*PSTD_buffer_bound_scale*/
+  bits_write( &bitsBuffer, 13, 2048);       /*PSTD_buffer_size_bound*/
   return 0;
 }
 /***
@@ -331,36 +336,35 @@ int gb28181_make_sys_header(char *pData)
 */
 int gb28181_make_psm_header(char *pData)
 {
-
-    bits_buffer_s   bitsBuffer;
-    bitsBuffer.i_size = PSM_HDR_LEN; 
-    bitsBuffer.i_data = 0;
-    bitsBuffer.i_mask = 0x80;
-    bitsBuffer.p_data = (unsigned char *)(pData);
-    memset(bitsBuffer.p_data, 0, PSM_HDR_LEN);
-    bits_write(&bitsBuffer, 24,0x000001); /*start code*/
-    bits_write(&bitsBuffer, 8, 0xBC);   /*map stream id*/
-    bits_write(&bitsBuffer, 16,18);     /*program stream map length*/ 
-    bits_write(&bitsBuffer, 1, 1);      /*current next indicator */
-    bits_write(&bitsBuffer, 2, 3);      /*reserved*/
-    bits_write(&bitsBuffer, 5, 0);      /*program stream map version*/
-    bits_write(&bitsBuffer, 7, 0x7F);   /*reserved */
-    bits_write(&bitsBuffer, 1, 1);      /*marker bit */
-    bits_write(&bitsBuffer, 16,0);      /*programe stream info length*/
-    bits_write(&bitsBuffer, 16, 8);     /*elementary stream map length  is*/
-    /*audio*/
-    bits_write(&bitsBuffer, 8, 0x90);       /*stream_type*/
-    bits_write(&bitsBuffer, 8, 0xC0);   /*elementary_stream_id*/
-    bits_write(&bitsBuffer, 16, 0);     /*elementary_stream_info_length is*/
-    /*video*/
-    bits_write(&bitsBuffer, 8, 0x1B);       /*stream_type*/
-    bits_write(&bitsBuffer, 8, 0xE0);   /*elementary_stream_id*/
-    bits_write(&bitsBuffer, 16, 0);     /*elementary_stream_info_length */
-    /*crc (2e b9 0f 3d)*/
-    bits_write(&bitsBuffer, 8, 0x45);   /*crc (24~31) bits*/
-    bits_write(&bitsBuffer, 8, 0xBD);   /*crc (16~23) bits*/
-    bits_write(&bitsBuffer, 8, 0xDC);   /*crc (8~15) bits*/
-    bits_write(&bitsBuffer, 8, 0xF4);   /*crc (0~7) bits*/
+  bits_buffer_s   bitsBuffer;
+  bitsBuffer.i_size = PSM_HDR_LEN; 
+  bitsBuffer.i_data = 0;
+  bitsBuffer.i_mask = 0x80;
+  bitsBuffer.p_data = (unsigned char *)(pData);
+  memset(bitsBuffer.p_data, 0, PSM_HDR_LEN);
+  bits_write(&bitsBuffer, 24,0x000001); /*start code*/
+  bits_write(&bitsBuffer, 8, 0xBC);   /*map stream id*/
+  bits_write(&bitsBuffer, 16,18);     /*program stream map length*/ 
+  bits_write(&bitsBuffer, 1, 1);      /*current next indicator */
+  bits_write(&bitsBuffer, 2, 3);      /*reserved*/
+  bits_write(&bitsBuffer, 5, 0);      /*program stream map version*/
+  bits_write(&bitsBuffer, 7, 0x7F);   /*reserved */
+  bits_write(&bitsBuffer, 1, 1);      /*marker bit */
+  bits_write(&bitsBuffer, 16,0);      /*programe stream info length*/
+  bits_write(&bitsBuffer, 16, 8);     /*elementary stream map length  is*/
+  /*audio*/
+  bits_write(&bitsBuffer, 8, 0x90);       /*stream_type*/
+  bits_write(&bitsBuffer, 8, 0xC0);   /*elementary_stream_id*/
+  bits_write(&bitsBuffer, 16, 0);     /*elementary_stream_info_length is*/
+  /*video*/
+  bits_write(&bitsBuffer, 8, 0x1B);       /*stream_type*/
+  bits_write(&bitsBuffer, 8, 0xE0);   /*elementary_stream_id*/
+  bits_write(&bitsBuffer, 16, 0);     /*elementary_stream_info_length */
+  /*crc (2e b9 0f 3d)*/
+  bits_write(&bitsBuffer, 8, 0x45);   /*crc (24~31) bits*/
+  bits_write(&bitsBuffer, 8, 0xBD);   /*crc (16~23) bits*/
+  bits_write(&bitsBuffer, 8, 0xDC);   /*crc (8~15) bits*/
+  bits_write(&bitsBuffer, 8, 0xF4);   /*crc (0~7) bits*/
   return 0;
 }
 /***
